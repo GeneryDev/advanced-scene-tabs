@@ -58,8 +58,8 @@ func show_tab_popup(
 	global_pos: Vector2, groups: Array, ctx_scene_path: String, is_pinned: bool
 ) -> void:
 	_tab_popup.clear()
+	_tab_popup.add_separator("Group")
 	_tab_popup.add_item("New Group...", ASTConstants.TAB_MENU_NEW_GROUP)
-	_tab_popup.add_separator()
 
 	for gi in groups.size():
 		var grp: Dictionary = groups[gi]
@@ -82,7 +82,6 @@ func show_tab_popup(
 			break
 
 	if in_group:
-		_tab_popup.add_separator()
 		_tab_popup.add_item("Remove from Group", ASTConstants.TAB_MENU_UNGROUP)
 
 	_tab_popup.add_separator()
