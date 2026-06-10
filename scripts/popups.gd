@@ -88,6 +88,9 @@ func show_tab_popup(
 	_tab_popup.add_item("Unpin" if is_pinned else "Pin", ASTConstants.TAB_MENU_PIN)
 
 	_tab_popup.add_separator()
+	_tab_popup.add_item(TranslationServer.tr("Show in FileSystem"), ASTConstants.TAB_MENU_SHOW_IN_FILESYSTEM)
+	
+	_tab_popup.add_separator()
 	_tab_popup.add_item("Close", ASTConstants.TAB_MENU_CLOSE)
 	_tab_popup.position = Vector2i(global_pos)
 	_tab_popup.reset_size()

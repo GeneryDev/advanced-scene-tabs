@@ -104,6 +104,9 @@ func _on_tab_popup_action(id: int) -> void:
 	elif id == ASTConstants.TAB_MENU_PIN:
 		_store.toggle_pin(ctx_path)
 		_ui.rebuild()
+	elif id == ASTConstants.TAB_MENU_SHOW_IN_FILESYSTEM:
+		EditorInterface.select_file(ctx_path)
+		EditorInterface.get_file_system_dock().make_visible()
 	elif id == ASTConstants.TAB_MENU_CLOSE:
 		var open := get_editor_interface().get_open_scenes()
 		var idx := _tab_index_of(ctx_path, open)
