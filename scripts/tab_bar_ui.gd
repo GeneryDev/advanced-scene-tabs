@@ -454,9 +454,14 @@ func _on_tab_input(event: InputEvent, tab_idx: int, scene_path: String) -> void:
 	elif event.button_index == MOUSE_BUTTON_RIGHT:
 		_ctx_scene_path = scene_path
 		_popups.show_tab_popup(
-			Vector2(DisplayServer.window_get_position(event.window_id)) + event.global_position, _store.groups, scene_path, _store.is_pinned(scene_path)
+			get_input_popup_position(event), _store.groups, scene_path, _store.is_pinned(scene_path)
 		)
 
+func get_input_popup_position(event : InputEventMouse) -> Vector2:
+	var pos := event.global_position;
+	if EditorInterface.is_multi_window_enabled():
+		pos += Vector2(DisplayServer.window_get_position(event.window_id));
+	return pos;
 
 func _close_tab(idx: int) -> void:
 	if not is_instance_valid(_original_tab_bar):
