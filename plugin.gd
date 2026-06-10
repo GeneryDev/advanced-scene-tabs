@@ -113,6 +113,15 @@ func _on_tab_popup_action(id: int) -> void:
 
 		if idx >= 0:
 			_ui.close_tab_by_index(idx)
+	elif id == ASTConstants.TAB_MENU_CLOSE_OTHERS:
+		_ui.close_neighbors_in_group(ctx_path, [-1, 1]);
+		_ui.rebuild()
+	elif id == ASTConstants.TAB_MENU_CLOSE_LEFT:
+		_ui.close_neighbors_in_group(ctx_path, [-1]);
+		_ui.rebuild()
+	elif id == ASTConstants.TAB_MENU_CLOSE_RIGHT:
+		_ui.close_neighbors_in_group(ctx_path, [1]);
+		_ui.rebuild()
 
 	elif id >= ASTConstants.TAB_MENU_MOVE_BASE:
 		var gi := id - ASTConstants.TAB_MENU_MOVE_BASE

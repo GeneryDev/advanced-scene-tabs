@@ -468,6 +468,19 @@ func _close_tab(idx: int) -> void:
 
 	_original_tab_bar.tab_close_pressed.emit(idx)
 
+func list_tabs_in_group(group_idx: int) -> Array:
+	var open := _editor.get_open_scenes()
+	var output: Array = []
+	if group_idx >= 0:
+		for scn in _store.groups[group_idx]["scenes"]:
+			var tab_index := open.find(scn)
+			if tab_index != -1:
+				output.append(tab_index)
+	else:
+		for i in open.size():
+			if _store.group_index_for(open[i]) == group_idx:
+				output.append(i);
+	return output; 
 
 func close_all_ungrouped() -> void:
 	if not is_instance_valid(_original_tab_bar):
@@ -487,6 +500,54 @@ func close_all_ungrouped() -> void:
 
 		_original_tab_bar.tab_close_pressed.emit(idx)
 
+func close_neighbors_in_group(tab_path : String, directions_to_close : Array[int]) -> void:
+	var to_close: Array = get_tab_neighbors_in_direction(tab_path, directions_to_close, true)
+	to_close.sort()
+	to_close.reverse()
+	
+	for idx in to_close:
+		var open2 := _editor.get_open_scenes()
+		if idx < open2.size():
+			_store.push_closed(open2[idx])
+
+		_original_tab_bar.tab_close_pressed.emit(idx)
+
+# Given the scene file path of an open tab, returns the tab indices of tabs inside the same group as the given path (or ungrouped tabs if the given tab is ungrouped),
+# filtered by the "directions" parameter array.
+# The "directions" array is expected to contain values that are either -1 (tabs to the left of the input), 1 (tabs to the right of the input), or 0 (the tab corresponding to the input path).
+# Only tabs within the same group that match at least one of the direction filters passed in will be returned.
+# Optionally, the exclude_pinned parameter controls whether pinned tabs are excluded from the resulting array (default false).
+# 
+# If the passed scene path has no corresponding open tab, an error is printed and an empty array is returned.
+func get_tab_neighbors_in_direction(tab_path : String, directions : Array[int], exclude_pinned : bool = false) -> Array:
+	if not is_instance_valid(_original_tab_bar):
+		return []
+		
+	var group_index := _store.group_index_for(tab_path)
+
+	var open := _editor.get_open_scenes()
+	var tabs_in_group: Array = list_tabs_in_group(group_index);
+	var occurrence_index_in_group := -1;
+	for i in tabs_in_group.size():
+		var tab_idx : int = tabs_in_group[i]
+		if open[tab_idx] == tab_path:
+			occurrence_index_in_group = i
+				
+	if occurrence_index_in_group == -1:
+		printerr("Failed to get tab neighbors in group: tab for scene '" + tab_path + "' was not found.")
+		return [];
+
+	var output: Array = []
+	for i in tabs_in_group.size():
+		var tab_index = tabs_in_group[i];
+		if exclude_pinned and _store.is_pinned(open[tab_index]):
+			continue;
+		
+		var direction := signi(i - occurrence_index_in_group)
+		if(direction in directions):
+			output.append(tab_index)
+	
+	return output;
 
 func close_tab_by_index(idx: int) -> void:
 	var open := _editor.get_open_scenes()

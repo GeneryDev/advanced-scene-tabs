@@ -75,11 +75,25 @@ func show_tab_popup(
 		)
 
 	var in_group := false
+	var open := EditorInterface.get_open_scenes();
+	var tab_count_in_same_group := 0;
+	var tab_count_in_all_groups := 0;
 
 	for g in groups:
+		var tab_count_in_this_group := 0;
+		for scene_in_group in g["scenes"]:
+			if scene_in_group in open:
+				tab_count_in_this_group += 1
+		
+		tab_count_in_all_groups += tab_count_in_this_group;
 		if ctx_scene_path in g["scenes"]:
 			in_group = true
+			tab_count_in_same_group = tab_count_in_this_group;
 			break
+			
+	if not in_group:
+		tab_count_in_same_group = open.size() - tab_count_in_all_groups;
+		
 
 	if in_group:
 		_tab_popup.add_item("Remove from Group", ASTConstants.TAB_MENU_UNGROUP)
@@ -90,8 +104,16 @@ func show_tab_popup(
 	_tab_popup.add_separator()
 	_tab_popup.add_item(TranslationServer.tr("Show in FileSystem"), ASTConstants.TAB_MENU_SHOW_IN_FILESYSTEM)
 	
-	_tab_popup.add_separator()
-	_tab_popup.add_item("Close", ASTConstants.TAB_MENU_CLOSE)
+	if tab_count_in_same_group > 1:
+		_tab_popup.add_separator("Close in Group" if in_group else "Close Ungrouped")
+	else:
+		_tab_popup.add_separator()
+	_tab_popup.add_item("Close Tab", ASTConstants.TAB_MENU_CLOSE)
+	if tab_count_in_same_group > 1:
+		_tab_popup.add_item("Close Other Tabs", ASTConstants.TAB_MENU_CLOSE_OTHERS)
+		_tab_popup.add_item("Close Tabs to the Left", ASTConstants.TAB_MENU_CLOSE_LEFT)
+		_tab_popup.add_item("Close Tabs to the Right", ASTConstants.TAB_MENU_CLOSE_RIGHT)
+	
 	_tab_popup.position = Vector2i(global_pos)
 	_tab_popup.reset_size()
 	_tab_popup.popup()
